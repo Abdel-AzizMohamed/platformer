@@ -1,0 +1,8 @@
+*.sh
+*.pyc
+cspell.json
+test*
+temp*
+*.log
+.vscode/
+*.swp
