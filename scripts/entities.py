@@ -1,5 +1,6 @@
 """Contains game entities"""
 
+from typing import List
 import pygame
 
 
@@ -22,9 +23,7 @@ class PhysicsEntity:
 
     def rect(self):
         """Creates a new rect for the object"""
-        return pygame.Rect(
-            self.pos[0], self.pos[1], self.size[0], self.size[1]
-        )
+        return pygame.Rect(self.pos[0], self.pos[1], self.size[0], self.size[1])
 
     def update(self, tilemap, movement=(0, 0)):
         """Update entity position"""
@@ -69,6 +68,9 @@ class PhysicsEntity:
         if self.collisions.get("down") or self.collisions.get("up"):
             self.velocity[1] = 0
 
-    def render(self, surf: pygame.Surface):
+    def render(self, surf: pygame.Surface, offset: List[int] = (0, 0)):
         """Render entity in a given surface"""
-        surf.blit(self.game.assets["player"], self.pos)
+        surf.blit(
+            self.game.assets["player"],
+            (self.pos[0] - offset[0], self.pos[1] - offset[1]),
+        )

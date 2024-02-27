@@ -4,9 +4,11 @@
 import sys
 import pygame
 
+from scripts.debug import print_info
 from scripts.utils import load_image, load_dir_images
 from scripts.entities import PhysicsEntity
 from scripts.tilemap import Tilemap
+from scripts.clouds import Clouds
 
 
 class Game:
@@ -28,22 +30,48 @@ class Game:
             "large_decor": load_dir_images("tiles/large_decor"),
             "stone": load_dir_images("tiles/stone"),
             "player": load_image("entities/player.png"),
+            "background": load_image("background.png"),
+            "clouds": load_dir_images("clouds"),
         }
 
         self.movement = [False, False]
         self.player = PhysicsEntity(self, "player", (50, 50), (8, 15))
+        self.clouds = Clouds(self.assets.get("clouds"))
 
         self.tilemap = Tilemap(self)
+
+        self.scroll = [0, 0]
 
     def run(self):
         """Starts the game"""
         while True:
-            self.display.fill((14, 219, 248))
-            self.tilemap.render(self.display)
-            self.player.update(
-                self.tilemap, (self.movement[1] - self.movement[0], 0)
+            self.display.blit(self.assets["background"], (0, 0))
+
+            self.scroll[0] += (
+                self.player.rect().centerx
+                - self.display.get_width() / 2
+                - self.scroll[0]
+            ) / 20
+            self.scroll[1] += (
+                self.player.rect().centery
+                - self.display.get_height() / 2
+                - self.scroll[1]
+            ) / 20
+            render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
+
+            self.clouds.update()
+            self.clouds.render(self.display, render_scroll)
+
+            self.tilemap.render(self.display, offset=render_scroll)
+
+            self.player.update(self.tilemap, (self.movement[1] - self.movement[0], 0))
+            self.player.render(self.display, offset=render_scroll)
+
+            print_info(
+                self.display,
+                str(self.scroll[0]),
+                "#000000",
             )
-            self.player.render(self.display)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
